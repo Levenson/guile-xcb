@@ -71,14 +71,14 @@
     (lambda () (close-port port))))
 
 (define (parse-display-name disp)
-    (define m (string-match ":([0-9]+).?([0-9]*)" disp))
-    `((display . ,(match:substring m 1))
-      (screen . ,(match:substring m 2))))
+  (define m (string-match ":([0-9]+).?([0-9]*)" disp))
+  `((display . ,(match:substring m 1))
+    (screen . ,(match:substring m 2))))
 
-  (define (display-match? xauth-display display-string)
-    (string=
-     (assq-ref (parse-display-name display-string) 'display)
-     xauth-display))
+(define (display-match? xauth-display display-string)
+  (string=
+   (assq-ref (parse-display-name display-string) 'display)
+   xauth-display))
 
 (define (xcb-match-auth auths display-name hostname)
   (define (auth-match? auth)
@@ -94,24 +94,24 @@
       (lp (cons (car auths) matches) (cdr auths)))
      (else (lp matches (cdr auths))))))
 
-  (define protocol-major-version 11)
-  (define protocol-minor-version 0)
-  (define xbase "/tmp/.X11-unix/X")
+(define protocol-major-version 11)
+(define protocol-minor-version 0)
+(define xbase "/tmp/.X11-unix/X")
 
-  (define (handle-additional-authentication
-           xcb-conn auth-method auth-data response)
-    (format #t "X server requires additional authentication. Reason: ~a"
-            (xcb->string (xref response 'reason)))
-    (error "xml-xcb: Additional authentication not supported at this time"))
+(define (handle-additional-authentication
+         xcb-conn auth-method auth-data response)
+  (format #t "X server requires additional authentication. Reason: ~a"
+          (xcb->string (xref response 'reason)))
+  (error "xml-xcb: Additional authentication not supported at this time"))
 
-  (define (xcb-setup-unpack port)
+(define (xcb-setup-unpack port)
 
-    (xcb-struct-unpack
-     (case (lookahead-u8 port)
-       ((0) setup-failed)
-       ((1) setup)
-       ((2) setup-authenticate))
-     port))
+  (xcb-struct-unpack
+   (case (lookahead-u8 port)
+     ((0) setup-failed)
+     ((1) setup)
+     ((2) setup-authenticate))
+   port))
 
 (define* (xcb-connect!
           #:optional (display-name (getenv "DISPLAY"))
